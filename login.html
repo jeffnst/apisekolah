@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login - API Sekolah</title>
+<style>body{margin:0;font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;display:flex;min-height:100vh;align-items:center;justify-content:center}
+.box{background:#1e293b;padding:28px;border-radius:12px;width:340px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+h1{font-size:18px;margin:0 0 14px;color:#38bdf8}.f{margin:8px 0}.f input{width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;box-sizing:border-box}
+button{width:100%;padding:10px;border:none;border-radius:8px;background:#38bdf8;color:#0f172a;font-weight:700;cursor:pointer;margin-top:10px}
+.msg{color:#f87171;font-size:13px;min-height:18px;margin-top:8px}a{color:#38bdf8;font-size:12px;text-decoration:none}</style></head>
+<body><div class="box"><h1>Login API Sekolah</h1>
+<div class="f"><input id="em" placeholder="email" value="admin@apisekolah.id"></div>
+<div class="f"><input id="pw" type="password" placeholder="password"></div>
+<button id="lb">Masuk</button><div class="msg" id="err"></div>
+<div style="margin-top:10px;text-align:center"><a href="/dashboard">Buka Dashboard &raquo;</a></div></div>
+<script>function go(){fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em.value,password:pw.value})}).then(r=>r.json()).then(j=>{if(j.ok){if(j.user.role==='admin')localStorage.setItem('adminkey','x');location='/dashboard';}else err.textContent=j.error;});}
+var em=document.getElementById('em'),pw=document.getElementById('pw'),err=document.getElementById('err'),lb=document.getElementById('lb');
+lb.addEventListener('click',go);pw.addEventListener('keydown',function(e){if(e.key==='Enter')go();});</script></body></html>

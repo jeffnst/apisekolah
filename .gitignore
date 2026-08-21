@@ -1,0 +1,6 @@
+node_modules/
+.adminkey
+.sesskey
+*.log
+.DS_Store
+.env

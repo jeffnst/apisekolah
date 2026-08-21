@@ -1,0 +1,324 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Data Sekolah Indonesia",
+    "version": "2.3.0",
+    "description": "API pencarian data sekolah seluruh Indonesia. Auth: header X-API-Key."
+  },
+  "servers": [
+    {
+      "url": "https://apisekolah.subuhkreatif.my.id"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  },
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "paths": {
+    "/api/v1/sekolah": {
+      "get": {
+        "summary": "List sekolah (filter)",
+        "tags": [
+          "sekolah"
+        ],
+        "parameters": [
+          {
+            "name": "npsn",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nama",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "LIKE nama sekolah"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "cari di nama/npsn"
+          },
+          {
+            "name": "kode_provinsi",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "31"
+          },
+          {
+            "name": "kode_kabupaten",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "32.71 atau 3271"
+          },
+          {
+            "name": "kode_kecamatan",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "6 digit 327104"
+          },
+          {
+            "name": "nama_provinsi",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nama_kabupaten",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nama_kecamatan",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bentuk_pendidikan",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status_sekolah",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "akreditasi",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Get Data Success",
+                  "page": 1,
+                  "size": 1,
+                  "total": 1383,
+                  "count": 1,
+                  "data": [
+                    {
+                      "sekolah_id": "C7C3B2A6-34EC-4BA7-8EDE-B3EDB0B94F38",
+                      "npsn": "70001234",
+                      "nama": "SDN CONTOH",
+                      "bentuk_pendidikan": "SD",
+                      "status_sekolah": "NEGERI",
+                      "akreditasi": "A",
+                      "alamat_jalan": "Jl. Contoh",
+                      "rt": "01",
+                      "rw": "02",
+                      "nama_dusun": "Sukamaju",
+                      "kode_pos": "16110",
+                      "kode_provinsi_kemendagri": "32",
+                      "nama_provinsi_kemendagri": "Jawa Barat",
+                      "kode_kabupaten_kemendagri": "32.71",
+                      "nama_kabupaten_kemendagri": "Kota Bogor",
+                      "kode_kecamatan_kemendagri": "327106",
+                      "nama_kecamatan_kemendagri": "Tanah Sareal",
+                      "kode_provinsi_dikdasmen": "3271",
+                      "nama_provinsi_dikdasmen": "Prov. Jawa Barat",
+                      "kode_kabupaten_dikdasmen": "3271",
+                      "nama_kabupaten_dikdasmen": "Kota Bogor",
+                      "kode_kecamatan_dikdasmen": null,
+                      "nama_kecamatan_dikdasmen": null,
+                      "lintang": "-6.5",
+                      "bujur": "106.7",
+                      "email": "sdncontoh@gmail.com",
+                      "telepon": "02155667788",
+                      "yayasan": "Yayasan Contoh",
+                      "web": "https://sdncontoh.sch.id"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sekolah/{id}": {
+      "get": {
+        "summary": "Detail sekolah lengkap",
+        "tags": [
+          "sekolah"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Get Data Success",
+                  "data": {
+                    "sekolah": {
+                      "sekolah_id": "C7C3B2A6-34EC-4BA7-8EDE-B3EDB0B94F38",
+                      "npsn": "70001234",
+                      "nama": "SDN CONTOH",
+                      "alamat_jalan": "Jl. Contoh"
+                    },
+                    "ruang": [],
+                    "ptk": [],
+                    "kurikulum": [],
+                    "rasio": [],
+                    "foto": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wilayah/provinsi": {
+      "get": {
+        "summary": "List provinsi",
+        "tags": [
+          "wilayah"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "kode": "31",
+                    "nama": "DKI Jakarta"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wilayah/kabupaten": {
+      "get": {
+        "summary": "List kabupaten by provinsi",
+        "tags": [
+          "wilayah"
+        ],
+        "parameters": [
+          {
+            "name": "kode_provinsi",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "kode": "31.73",
+                    "nama": "Kota Adm. Jakarta Barat"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wilayah/kecamatan": {
+      "get": {
+        "summary": "List kecamatan by kabupaten",
+        "tags": [
+          "wilayah"
+        ],
+        "parameters": [
+          {
+            "name": "kode_kabupaten",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "kode": "327104",
+                    "nama": "Kota Bogor Barat"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
