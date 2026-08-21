@@ -98,6 +98,29 @@ function LIKE(v) { return `%${v}%`; }
 
 // ---------- API v1 ----------
 const v1 = express.Router();
+// ---------- response cache (in-memory TTL) ----------
+const CACHE_TTL = 120000; // 2 menit
+const respCache = new Map();
+function cacheKey(req){ return req.method + ' ' + req.originalUrl.split('?')[0] + '?' + (req.originalUrl.split('?')[1] || ''); }
+v1.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  const k = cacheKey(req);
+  const hit = respCache.get(k);
+  if (hit && Date.now() - hit.t < CACHE_TTL) {
+    stats.cacheHits = (stats.cacheHits || 0) + 1;
+    res.set('X-Cache', 'HIT');
+    return res.json(hit.body);
+  }
+  stats.cacheMiss = (stats.cacheMiss || 0) + 1;
+  const origJson = res.json.bind(res);
+  res.json = function(body){
+    if (res.statusCode < 400) respCache.set(k, { t: Date.now(), body });
+    return origJson(body);
+  };
+  next();
+});
+
+
 v1.get('/', (req, res) => res.json({ name: 'API Data Sekolah Indonesia', version: '2.3.0', base: '/api/v1', auth: 'Header X-API-Key', endpoints: { 'sekolah': 'GET list/filter (npsn, nama, q, kode_provinsi, kode_kabupaten, kode_kecamatan, nama_provinsi, nama_kabupaten, nama_kecamatan, bentuk_pendidikan, status_sekolah, akreditasi)', 'sekolah/:id': 'GET detail lengkap', 'wilayah/provinsi': 'GET', 'wilayah/kabupaten': 'GET?kode_provinsi=', 'wilayah/kecamatan': 'GET?kode_kabupaten=' } }));
 
 // build WHERE for sekolah list from query
@@ -181,7 +204,7 @@ v1.get('/wilayah/kecamatan', async (req, res) => { const kk = req.query.kode_kab
 app.use('/api/v1', requireKey, v1);
 
 // ---------- stats / monitoring ----------
-app.get('/api/stats', (req, res) => { res.set('Cache-Control', 'no-store'); res.json({ uptime_detik: Math.floor((Date.now() - stats.start) / 1000), total_request: stats.total, req_per_min: Math.round(stats.total / Math.max(1, (Date.now() - stats.start) / 60000)), top_endpoint: Object.entries(stats.byEndpoint).sort((a, b) => b[1] - a[1]).slice(0, 10) }); });
+app.get('/api/stats', (req, res) => { res.set('Cache-Control', 'no-store'); res.json({ uptime_detik: Math.floor((Date.now() - stats.start) / 1000), total_request: stats.total, cache_hits: stats.cacheHits || 0, cache_miss: stats.cacheMiss || 0, cache_size: respCache.size, req_per_min: Math.round(stats.total / Math.max(1, (Date.now() - stats.start) / 60000)), top_endpoint: Object.entries(stats.byEndpoint).sort((a, b) => b[1] - a[1]).slice(0, 10) }); });
 app.get('/api/scrape-status', async (req, res) => { res.set('Cache-Control', 'no-store'); try { const [p] = await pool.query('SELECT status, COUNT(*) AS j FROM scrape_progress GROUP BY status'); const [[{ total }]] = await pool.query('SELECT COUNT(*) AS total FROM sekolah'); const o = { total_sekolah: total, status: {} }; for (const r of p) o.status[r.status] = r.j; o.selesai = o.status.done || 0; o.total_kabupaten = Object.values(o.status).reduce((a, b) => a + b, 0); o.persen = o.total_kabupaten ? Math.round(o.selesai / o.total_kabupaten * 100) : 0; res.json(o); } catch (e) { res.status(500).json({ error: e.message }); } });
 app.get('/api/activity', requireAdmin, async (req, res) => { const lim = Math.min(200, Math.max(1, INT(req.query.limit, 50))); const [r] = await pool.query('SELECT a.*, u.email FROM activity_log a LEFT JOIN users u ON a.user_id = u.id ORDER BY a.id DESC LIMIT ?', [lim]); res.json(r); });
 

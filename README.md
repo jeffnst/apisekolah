@@ -219,6 +219,19 @@ Lalu proxy lewat Nginx + SSL ke `127.0.0.1:3002` (lihat `sites-available/apiseko
 
 ---
 
+## Response Cache
+
+API memiliki **in-memory response cache** (TTL 2 menit) untuk seluruh endpoint `GET`
+di `/api/v1`. Request yang identik (URL + query string sama) dalam 2 menit dilayani
+dari memory tanpa query ulang ke database — cocok karena data sekolah bersifat statis.
+
+- Cache otomatis untuk method `GET`, diabaikan untuk `POST/PATCH/DELETE`.
+- Response error (status >= 400) **tidak** di-cache.
+- Header `X-Cache: HIT` dikirim bila dilayani dari cache (lihat via `curl -D -`).
+- Pantau efektivitas lewat `GET /api/stats` → field `cache_hits`, `cache_miss`, `cache_size`.
+- Catatan: cache ada di memory proses Node. Saat service restart, cache kosong (akan
+  terisi kembali saat request masuk).
+
 ## Keamanan
 
 - API key dikirim via header `X-API-Key`, bukan di URL.
