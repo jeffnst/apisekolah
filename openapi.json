@@ -319,6 +319,114 @@
           }
         }
       }
+    },
+    "/api/v1/sekolah/dt": {
+      "get": {
+        "summary": "List sekolah untuk DataTables (server-side)",
+        "tags": [
+          "sekolah"
+        ],
+        "parameters": [
+          {
+            "name": "draw",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "length",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "search[value]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "cari nama/npsn"
+          },
+          {
+            "name": "order[0][column]",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "order[0][dir]",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "kode_kabupaten",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kode_kecamatan",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bentuk_pendidikan",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status_sekolah",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "draw": 1,
+                  "recordsTotal": 308,
+                  "recordsFiltered": 308,
+                  "data": [
+                    {
+                      "sekolah_id": "C7C3B2A6-34EC-4BA7-8EDE-B3EDB0B94F38",
+                      "npsn": "70055341",
+                      "nama": "TK Ummul Quro Bogor",
+                      "kode_kabupaten_kemendagri": "32.71",
+                      "nama_kecamatan_kemendagri": "Tanah Sareal"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

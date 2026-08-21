@@ -118,6 +118,41 @@ function buildWhere(q) {
   return { where, params };
 }
 
+// Datatables server-side endpoint: /api/v1/sekolah/dt
+// Menerima param standar DataTables: draw, start, length, search[value], order[0][column/dir], columns[i][data]
+v1.get('/sekolah/dt', async (req, res) => {
+  try {
+    const q = req.query;
+    const draw = parseInt(q.draw, 10) || 1;
+    const start = Math.max(0, parseInt(q.start, 10) || 0);
+    const length = Math.min(100, Math.max(1, parseInt(q.length, 10) || 20));
+    const search = (q.search && q.search.value) ? q.search.value : '';
+    // sortable columns (index -> column name in view)
+    const sortable = { 0:'sekolah_id', 1:'npsn', 2:'nama', 3:'bentuk_pendidikan', 4:'status_sekolah', 5:'akreditasi', 6:'kode_kabupaten_kemendagri', 7:'nama_kecamatan_kemendagri' };
+    let orderBy = 'nama';
+    try {
+      const oc = parseInt((q.order && q.order[0] && q.order[0].column) || '2', 10);
+      const dir = ((q.order && q.order[0] && q.order[0].dir) === 'desc') ? 'DESC' : 'ASC';
+      if (sortable[oc]) orderBy = sortable[oc] + ' ' + dir;
+    } catch (e) {}
+    const where = [], params = [];
+    if (search) { where.push('(nama LIKE ? OR npsn LIKE ?)'), params.push(LIKE(search), LIKE(search)); }
+    if (q.kode_provinsi) { where.push('kode_provinsi_kemendagri = ?'), params.push(String(q.kode_provinsi).replace('.', '')); }
+    if (q.kode_kabupaten) { where.push('kode_kabupaten_kemendagri = ?'), params.push(String(q.kode_kabupaten)); }
+    if (q.kode_kecamatan) { where.push('kode_kecamatan = ?'), params.push(String(q.kode_kecamatan).replace('.', '')); }
+    if (q.nama_provinsi) { where.push('nama_provinsi_dikdasmen LIKE ?'), params.push(LIKE(q.nama_provinsi)); }
+    if (q.nama_kabupaten) { where.push('nama_kabupaten_dikdasmen LIKE ?'), params.push(LIKE(q.nama_kabupaten)); }
+    if (q.bentuk_pendidikan) { where.push('bentuk_pendidikan = ?'), params.push(q.bentuk_pendidikan); }
+    if (q.status_sekolah) { where.push('status_sekolah = ?'), params.push(q.status_sekolah); }
+    if (q.akreditasi) { where.push('akreditasi = ?'), params.push(q.akreditasi); }
+    const w = where.length ? 'WHERE ' + where.join(' AND ') : '';
+    const [[{ total }]] = await pool.query(`SELECT COUNT(*) AS total FROM v_sekolah_search ${w}`, params);
+    const [rows] = await pool.query(`SELECT * FROM v_sekolah_search ${w} ORDER BY ${orderBy} LIMIT ? OFFSET ?`, [...params, length, start]);
+    res.json({ draw, recordsTotal: total, recordsFiltered: total, data: rows });
+  } catch (e) { console.error(e); res.status(500).json({ error: e.message }); }
+});
+
+
 v1.get('/sekolah', async (req, res) => {
   try {
     const q = req.query; const page = Math.max(1, INT(q.page, 1)); const size = Math.min(100, Math.max(1, INT(q.size, 20))); const off = (page - 1) * size;
@@ -158,6 +193,7 @@ app.get('/api-docs.json', (req, res) => res.json(OPENAPI));
 
 // ---------- pages ----------
 app.get('/', (req, res) => res.sendFile(path.join(WEB, 'login.html')));
+app.get('/datatables-demo', (req, res) => res.sendFile(path.join(WEB, 'datatables-example.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(WEB, 'dashboard.html')));
 
 app.listen(PORT, '127.0.0.1', () => console.log(`API Sekolah on 127.0.0.1:${PORT}`));

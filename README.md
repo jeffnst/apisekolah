@@ -228,6 +228,49 @@ Lalu proxy lewat Nginx + SSL ke `127.0.0.1:3002` (lihat `sites-available/apiseko
 
 ---
 
+## Integrasi dengan DataTables (jQuery)
+
+API menyediakan endpoint **server-side** yang langsung kompatibel dengan
+[DataTables.js](https://datatables.net): `GET /api/v1/sekolah/dt`.
+
+Format respons mengikuti standar DataTables:
+
+```json
+{ "draw": 1, "recordsTotal": 308, "recordsFiltered": 308, "data": [ ... ] }
+```
+
+Parameter yang diterima: `draw`, `start`, `length`, `search[value]` (cari nama/npsn),
+`order[0][column]` & `order[0][dir]`, plus filter `kode_kabupaten`, `kode_kecamatan`,
+`bentuk_pendidikan`, `status_sekolah`, `akreditasi`, `nama_provinsi`, `nama_kabupaten`.
+
+### Contoh frontend
+
+File `datatables-example.html` (lihat di repo) sudah jadi demo lengkap. Cara pakai intinya:
+
+```html
+<table id="t" class="display"><thead><tr>
+  <th>NPSN</th><th>Nama</th><th>Bentuk</th><th>Status</th><th>Akreditasi</th><th>Kab</th><th>Kecamatan</th>
+</tr></thead></table>
+
+<script>
+$('#t').DataTable({
+  processing: true, serverSide: true,
+  ajax: {
+    url: '/api/v1/sekolah/dt',
+    beforeSend: function(xhr){ xhr.setRequestHeader('X-API-Key', 'sk_xxx'); }
+  },
+  columns: [
+    { data: 'npsn' }, { data: 'nama' }, { data: 'bentuk_pendidikan' },
+    { data: 'status_sekolah' }, { data: 'akreditasi' },
+    { data: 'kode_kabupaten_kemendagri' }, { data: 'nama_kecamatan_kemendagri' }
+  ]
+});
+</script>
+```
+
+Buka demo langsung: `https://apisekolah.subuhkreatif.my.id/datatables-demo`
+(masukkan API key Anda di kolom yang disediakan).
+
 ## Lisensi
 
 Untuk keperluan internal/pembelajaran. Sesuaikan lisensi sesuai kebutuhan Anda.

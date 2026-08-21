@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Data Sekolah - DataTables</title>
+<link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
+<style>body{font-family:system-ui,sans-serif;margin:20px}h2{color:#0f172a}#apikey{width:380px;padding:6px}.wrap{margin-bottom:10px}</style>
+</head><body>
+<h2>Daftar Sekolah (DataTables + API)</h2>
+<div class="wrap">API Key: <input id="apikey" placeholder="sk_xxx"> <button onclick="reload()">Muat</button> <span id="msg" style="color:#888"></span></div>
+<table id="t" class="display" style="width:100%">
+  <thead><tr>
+    <th>NPSN</th><th>Nama</th><th>Bentuk</th><th>Status</th><th>Akreditasi</th><th>Kab (Mendagri)</th><th>Kecamatan</th>
+  </tr></thead>
+</table>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+<script>
+function getKey(){ return document.getElementById('apikey').value.trim(); }
+function reload(){ if(!getKey()){ document.getElementById('msg').textContent='Masukkan API key dulu'; return; } $('#t').DataTable().ajax.reload(); }
+$(function(){
+  $('#t').DataTable({
+    processing: true, serverSide: true,
+    ajax: {
+      url: '/api/v1/sekolah/dt',
+      type: 'GET',
+      beforeSend: function(xhr){ xhr.setRequestHeader('X-API-Key', getKey()); },
+      dataSrc: function(json){ if(json.error){ document.getElementById('msg').textContent=json.error; return []; } document.getElementById('msg').textContent=''; return json.data; }
+    },
+    columns: [
+      { data: 'npsn' }, { data: 'nama' }, { data: 'bentuk_pendidikan' },
+      { data: 'status_sekolah' }, { data: 'akreditasi' },
+      { data: 'kode_kabupaten_kemendagri' }, { data: 'nama_kecamatan_kemendagri' }
+    ],
+    columnDefs: [{ targets:1, render: function(d){ return d || '-'; } }],
+    lengthMenu: [10,25,50,100], pageLength: 10,
+    language: { search:'Cari nama/npsn:', processing:'Memuat...' }
+  });
+  // enter key di input apikey
+  document.getElementById('apikey').addEventListener('keydown', function(e){ if(e.key==='Enter') reload(); });
+});
+</script></body></html>
